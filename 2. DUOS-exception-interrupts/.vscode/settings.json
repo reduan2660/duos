@@ -1,0 +1,30 @@
+{
+  "files.associations": {
+    "*.rasi": "css",
+    "*.bbmodel": "json",
+    "*.sublime-snippet": "xml",
+    "*.hbs": "html",
+    "*.ejs": "html",
+    "lesskey": "lesskey",
+    "*.Xresources": "xdefaults",
+    "i3/config": "i3",
+    "i3/*.conf": "i3",
+    "polybar/config": "ini",
+    "polybar/*.conf": "ini",
+    "*.embeddedhtml": "html",
+    "stm32_peps.h": "c",
+    "__bit_reference": "c",
+    "bitset": "c",
+    "unordered_map": "c",
+    "kled.h": "c",
+    "stdarg.h": "c",
+    "syscall.h": "c",
+    "se7en_segment.h": "c",
+    "cm4.h": "c",
+    "stdint.h": "c",
+    "sys.h": "c",
+    "gpio.h": "c",
+    "syscall_def.h": "c",
+    "kstdio.h": "c"
+  }
+}
