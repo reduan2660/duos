@@ -36,3 +36,5 @@
 #define STDERR_FILENO 2      /* Standard error */
 #endif /* KERN_UNISTD_H */
 
+void __sys_write(char *str);
+

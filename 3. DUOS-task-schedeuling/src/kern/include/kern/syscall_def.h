@@ -66,7 +66,8 @@
 #define SYS_sigpending   29
 #define SYS_sigprocmask  30
 #define SYS_sigsuspend   31
-#define SYS_sigreturn    32
+// #define SYS_sigreturn    32
+#define SYSwrite    32
 
 //-- File-handle-related --
 #define SYS_open         45

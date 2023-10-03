@@ -45,4 +45,5 @@ void __sys_init(void)
 	kprintf("                         \n");
 	kprintf("---System Booting--------\n");
 	kprintf("                         \n");
+	kprintf("                         \n");
 }

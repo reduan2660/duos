@@ -62,10 +62,10 @@ void Default_Handler(void)
 // 2. implement the fault handlers
 void HardFault_Handler(void)
 {
-	kprintf("Hardfault Exception Triggered\n");
-	kprintf("System Restarting....\n");
-	reboot();
-	kprintf("System Restart Failed.\n");
+	// kprintf("Hardfault Exception Triggered\n");
+	// kprintf("System Restarting....\n");
+	// reboot();
+	// kprintf("System Restart Failed.\n");
 	while (1)
 		;
 }
@@ -86,8 +86,26 @@ void BusFault_Handler(void)
 
 void SVCall_Handler(void)
 {
+	kprintf("inside SVCall_Handler\n");
 	/* Write code for SVC handler */
 	/* the handler function evntually call syscall function with a call number */
+
+	__asm volatile (
+		"TST lr, #4\n"
+        "ITE EQ\n"
+        "MRSEQ r0, MSP\n"
+    	"MRSNE r0, PSP\n"
+		"B SVC_Handler_Main"
+	);
+
+	kprintf("SVCall_Handler returned\n");
+}
+
+void SVC_Handler_Main( uint32_t *svc_args )
+{
+	kprintf("inside SVC_Handler_Main\n");
+	syscall(svc_args);
+	kprintf("SVC_Handler_Main returned\n");
 }
 
 void EXTI0_Handler(void)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 
+ * Copyright (c) 2022
  * Computer Science and Engineering, University of Dhaka
  * Credit: CSE Batch 25 (starter) and Prof. Mosaddek Tushar
  *
@@ -27,82 +27,86 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 #include <cm4.h>
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
 /************************************************************************************
-* __SysTick_init(uint32_t reload) 
-* Function initialize the SysTick clock. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+ * __SysTick_init(uint32_t reload)
+ * Function initialize the SysTick clock. The function with a weak attribute enables
+ * redefining the function to change its characteristics whenever necessary.
+ **************************************************************************************/
 
-__attribute__((weak)) void __SysTick_init(uint32_t reload)
+int reload = 10000; //
+
+__attribute__((weak)) void __SysTick_init()
 {
-    SYSTICK->CTRL &= ~(1<<0); //disable systick timer
+    SYSTICK->CTRL &= ~(1 << 0); // disable systick timer
 
-    SYSTICK->VAL =0; // initialize the counter
-    __mscount=0;
-    SYSTICK->LOAD = PLL_N*reload;
-    SYSTICK->CTRL |= 1<<1 | 1<<2; //enable interrupt and internal clock source
-    
-    // SYSTICK->CTRL|=1<<0; //enable systick counter
+    SYSTICK->VAL = 0; // initialize the counter
+    __mscount = 0;
+
+    // adjust reload value to get 10ms interrupt
+    SYSTICK->LOAD = PLL_N * reload;   // set the reload value to 10ms
+    SYSTICK->CTRL |= 1 << 1 | 1 << 2; // enable interrupt and internal clock source
+
+    SYSTICK->CTRL |= 1 << 0; // enable systick counter
 }
 
 /************************************************************************************
-* __sysTick_enable(void) 
-* The function enables the SysTick clock if already not enabled. 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+ * __sysTick_enable(void)
+ * The function enables the SysTick clock if already not enabled.
+ * redefining the function to change its characteristics whenever necessary.
+ **************************************************************************************/
 __attribute__((weak)) void __sysTick_enable(void)
 {
-    if(SYSTICK->CTRL & ~(1<<0)) SYSTICK->CTRL |= 1<<0;
+    if (SYSTICK->CTRL & ~(1 << 0))
+        SYSTICK->CTRL |= 1 << 0;
 }
 __attribute__((weak)) void __sysTick_disable(void)
 {
-    if(!(SYSTICK->CTRL & ~(1<<0))) SYSTICK->CTRL &= ~(1<<0);
+    if (!(SYSTICK->CTRL & ~(1 << 0)))
+        SYSTICK->CTRL &= ~(1 << 0);
 }
 __attribute__((weak)) uint32_t __getSysTickCount(void)
 {
     return SYSTICK->VAL;
 }
 /************************************************************************************
-* __updateSysTick(uint32_t count) 
-* Function reinitialize the SysTick clock. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+ * __updateSysTick(uint32_t count)
+ * Function reinitialize the SysTick clock. The function with a weak attribute enables
+ * redefining the function to change its characteristics whenever necessary.
+ **************************************************************************************/
 
 __attribute__((weak)) void __updateSysTick(uint32_t count)
 {
-    SYSTICK->CTRL &= ~(1<<0); //disable systick timer
-    SYSTICK->VAL =0; // initialize the counter
-    __mscount=0;
-    SYSTICK->CTRL |= 1<<1 | 1<<2; //enable interrupt and internal clock source
-    SYSTICK->LOAD = PLL_N*count;
-    SYSTICK->CTRL|=1<<0; //enable systick counter
+    SYSTICK->CTRL &= ~(1 << 0); // disable systick timer
+    SYSTICK->VAL = 0;           // initialize the counter
+    __mscount = 0;
+    SYSTICK->CTRL |= 1 << 1 | 1 << 2; // enable interrupt and internal clock source
+    SYSTICK->LOAD = PLL_N * count;
+    SYSTICK->CTRL |= 1 << 0; // enable systick counter
 }
 
 /************************************************************************************
-* __getTime(void) 
-* Function return the SysTick elapsed time from the begining or reinitialing. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+ * __getTime(void)
+ * Function return the SysTick elapsed time from the begining or reinitialing. The function with a weak attribute enables
+ * redefining the function to change its characteristics whenever necessary.
+ **************************************************************************************/
 
 __attribute__((weak)) uint32_t __getTime(void)
 {
-    return (__mscount+(SYSTICK->LOAD-SYSTICK->VAL)/(PLL_N*1000));
+    return (__mscount + (SYSTICK->LOAD - SYSTICK->VAL) / (PLL_N * reload));
 }
 __attribute__((weak)) void SysTick_Handler()
 {
-    __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
-	kprintf("Exception : Systick Exception Triggered - ");
-	kprintf("%d\n", __mscount);
+    __mscount += (SYSTICK->LOAD) / (PLL_N * reload);
+    kprintf("Exception : Systick Exception Triggered - ");
+    kprintf("%d\n", __mscount);
 }
 
 void __enable_fpu()
 {
-    SCB->CPACR |= ((0xF<<20));
+    SCB->CPACR |= ((0xF << 20));
 }
-
-

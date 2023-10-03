@@ -40,102 +40,23 @@
 #include <test_interrupt.h>
 #include <stm32_peps.h>
 
-void GPIO_Config(void)
-{
-	/*************>>>>>>> STEPS FOLLOWED <<<<<<<<************
-
-	1. Enable GPIO Clock
-	2. Set the required Pin in the INPUT Mode
-	3. Configure the PULL UP/ PULL DOWN According to your requirement
-
-	********************************************************/
-
-	RCC->AHB1ENR |= (1 << 0); // Enable GPIOA clock
-	GPIOA->PUPDR |= (1 << 0); // Bits (1:0) = 1:0  --> PA0 is in Pull Up mode
-}
-
-void Interrupt_Config(void)
-{
-	/*
-	1. Enable the SYSCNFG bit in RCC register
-	2. Configure the EXTI configuration Regiter in the SYSCNFG
-	3. Enable the EXTI using Interrupt Mask Register (IMR)
-	4. Configure the Rising Edge / Falling Edge Trigger
-	5. Set the Interrupt Priority
-	6. Enable the interrupt
-	*/
-
-	RCC->APB2ENR |= (1 << 14); // Enable SYSCNFG
-
-	SYSCFG->EXTICR[0] &= ~(0xf << 0); // Bits[3:2:1:0] = (0:0:0:0)  -> configure EXTI0 line for PA0
-
-	EXTI->IMR |= (1 << 0); // Bit[0] = 1  --> Disable the Mask on EXTI 0
-
-	EXTI->RTSR |= (1 << 0); // Enable Rising Edge Trigger for PA0
-
-	EXTI->FTSR &= ~(1 << 0); // Disable Falling Edge Trigger for PA0
-
-	__NVIC_SetPriority(EXTI0_IRQn, 2); // Set Priority to 2
-	__NVIC_EnableIRQn(EXTI0_IRQn);	   // Enable Interrupt
-}
+// userland
+#include <main.h>
 
 void kmain(void)
 {
 	__sys_init();
-	__SysTick_init(16777215);
+	// __SysTick_init();
 
-	GPIO_Config();
-	Interrupt_Config();
+	// Starting userland
+	main();
+	
 
-	kprintf("Press 1 to trigger Hardfault\n");
-	kprintf("Press 2 to enable Systick Interrupt\n");
-	kprintf("Press 3 to disable Systick Interrupt\n");
-	kprintf("Press 4 to set BASEPRI\n");
-	kprintf("Press 0 to reboot\n");
-
+	//  Halt the systemz
 	while (1)
 	{
-
-		int option, priority;
-		;
-
-		kprintf("Waiting for input\n");
+		int option;
+		// kprintf("Waiting for input\n");
 		kscanf("%d", &option);
-
-		switch (option)
-		{
-		case 1:
-			kprintf("Triggering Hardfault\n");
-			enable_hardfault_event();
-			break;
-
-		case 2:
-			kprintf("Enabling Systick Interrupt\n");
-			enableSysTickInterrupt();
-			break;
-
-		case 3:
-			kprintf("Disabling Systick Interrupt\n");
-			disableSysTickInterrupt();
-			break;
-
-		case 4:
-			kprintf("Enter priority: "); // 0-15
-			kscanf("%d", &priority);
-
-			kprintf("Setting BASEPRI");
-			__set_BASEPRI(priority);
-
-			kprintf("BASEPRI VALUE: %d\n", get_basepri_value());
-			break;
-
-		case 0:
-			kprintf("Rebooting\n");
-			reboot();
-			break;
-
-		default:
-			break;
-		}
 	}
 }

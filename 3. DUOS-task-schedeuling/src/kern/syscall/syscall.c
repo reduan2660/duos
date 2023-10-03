@@ -32,16 +32,36 @@
 #include <syscall_def.h>
 #include <errno.h>
 #include <errmsg.h>
-void syscall(uint16_t callno)
+
+#include <kunistd.h>
+#include <usart.h>
+
+void syscall(uint32_t *svc_args)
 {
+	int callno = ((char *)svc_args[6])[-2];
+	kprintf("Inside syscall callno: %d\n", callno);
+
+	uint32_t stacked_r0, stacked_r1, stacked_r2, stacked_r3;
+	stacked_r0 = svc_args[0];
+	stacked_r1 = svc_args[1];
+	stacked_r2 = svc_args[2];
+	stacked_r3 = svc_args[3];
+
+	kprintf("stacked_r0: %d\n", stacked_r0);
+	kprintf("stacked_r1: %d\n", stacked_r1);
+	kprintf("stacked_r2: %d\n", stacked_r2);
+	kprintf("stacked_r3: %d\n", stacked_r3);
+
+
 /* The SVC_Handler calls this function to evaluate and execute the actual function */
 /* Take care of return value or code */
 	switch(callno)
 	{
 		/* Write your code to call actual function (kunistd.h/c or times.h/c and handle the return value(s) */
 		case SYS_read: 
-			break;
-		case SYS_write:
+			break;	
+		case SYSwrite:
+			__sys_write((char* )svc_args[0]);
 			break;
 		case SYS_reboot:
 			break;	
@@ -54,7 +74,8 @@ void syscall(uint16_t callno)
 		case SYS_yield:
 			break;				
 		/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/	
-		default: ;
+		default: 
+			;
 	}
 /* Handle SVC return here */
 }

@@ -28,6 +28,10 @@
  * SUCH DAMAGE.
  */
  
-#include <unistd.h>
-/* Write your highlevel I/O details */
+#ifndef __UUNISTD_H
+#define __UUNISTD_H
 
+// uint8_t * convert(uint32_t x,uint8_t base);
+void printf(char *format, ...);
+
+#endif

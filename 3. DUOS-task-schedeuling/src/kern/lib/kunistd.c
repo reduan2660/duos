@@ -28,5 +28,11 @@
  * SUCH DAMAGE.
  */
 #include <kunistd.h>
-/* Add your functions here */
+#include <kstdio.h>
 
+/* Add your functions here */
+void __sys_write(char *str)
+{
+    kprintf("To print: ");
+    kprintf(str);
+}
