@@ -33,6 +33,8 @@
 #include <cm4.h>
 #include <stm32_peps.h>
 #include <kstdio.h>
+#include <syscall.h>
+#include <syscall_def.h>
 
 void Reset_Handler(void)
 {
@@ -86,9 +88,7 @@ void BusFault_Handler(void)
 
 void SVCall_Handler(void)
 {
-	kprintf("inside SVCall_Handler\n");
-	/* Write code for SVC handler */
-	/* the handler function evntually call syscall function with a call number */
+	// kprintf("inside SVCall_Handler\n");
 
 	__asm volatile (
 		"TST lr, #4\n"
@@ -101,11 +101,12 @@ void SVCall_Handler(void)
 	kprintf("SVCall_Handler returned\n");
 }
 
+
 void SVC_Handler_Main( uint32_t *svc_args )
 {
-	kprintf("inside SVC_Handler_Main\n");
+	// kprintf("in - SVC_Handler_Main\n");
 	syscall(svc_args);
-	kprintf("SVC_Handler_Main returned\n");
+	// kprintf("SVC_Handler_Main - out\n");
 }
 
 void EXTI0_Handler(void)

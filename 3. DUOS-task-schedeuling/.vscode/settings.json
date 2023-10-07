@@ -34,6 +34,7 @@
     "usart.h": "c",
     "lib.h": "c",
     "compare": "c",
-    "ustd.h": "c"
+    "ustd.h": "c",
+    "stm32_startup.h": "c"
   }
 }

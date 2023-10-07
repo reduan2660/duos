@@ -43,14 +43,28 @@
 // userland
 #include <main.h>
 
+void SVC_Init(void)
+{
+	uint32_t psp_stack[1024];
+	PSP_Init(psp_stack + 1024);
+	__asm volatile(
+		".global PSP_Init\n"
+		"PSP_Init:\n"
+		"msr psp, r0\n"
+		"mov r0, #3\n"
+		"msr control, r0\n"
+		"isb\n");
+}
+
 void kmain(void)
 {
 	__sys_init();
+
 	// __SysTick_init();
 
 	// Starting userland
+	SVC_Init();
 	main();
-	
 
 	//  Halt the systemz
 	while (1)

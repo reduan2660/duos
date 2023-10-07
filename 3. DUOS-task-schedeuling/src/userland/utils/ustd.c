@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 
+ * Copyright (c) 2022
  * Computer Science and Engineering, University of Dhaka
  * Credit: CSE Batch 25 (starter) and Prof. Mosaddek Tushar
  *
@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
+
 #include <ustd.h>
 #include <stdarg.h>
 
@@ -38,34 +38,16 @@ static uint8_t __outbuf[50];
 
 void printf(char *format, ...)
 {
-	kprintf("Inside printf\n");
-	__asm volatile (
-		"mov r2, %[x]"
-		:
-		: [x] "r" (format)
-	);
-
-	kprintf("Format pointer: %d\n", format);
-
+	kprintf("in - printf\n");
 
 	// CAll SVC for sys_write | SYS_write => 55
-
-	// __asm volatile (
-	// 	"mov r3, %[x]"
-	// 	:
-	// 	: [x] "r" (55)
-	// );
-
-	__asm volatile (
-		// "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	__asm volatile(
+		"mov r3, %[x]\n"
 		"svc #55\n"
-		// "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}"
-	);
+		:
+		: [x] "r"(format));
 
-	// __asm volatile (
-	// 	"svc #0x55\n"
-	// );
-	kprintf("printf getting out\n");
+	kprintf("printf - out\n");
 }
 
 /*
@@ -95,7 +77,7 @@ void printf(char *format, ...){
 	// uint32_t *intval;
 	va_start(list, format);
 
-    char str[100];
+	char str[100];
 
 	for (tr = format; *tr != '\0'; tr++)
 	{
@@ -140,9 +122,9 @@ void printf(char *format, ...){
 				str[ind] = '-'; ind++; // UART_SendChar(USART2, '-');
 				i = -i;
 			}
-            uint8_t *s = (uint8_t *)convert(i, 16);
+			uint8_t *s = (uint8_t *)convert(i, 16);
 			while(*s) str[ind] = *s++; ind++; // while (*s) UART_SendChar(usart,*s++); // _USART_WRITE(USART2, (uint8_t *)convert(i, 16));
-            
+
 			break;
 		case 's':
 			str = va_arg(list, uint8_t *);
@@ -160,7 +142,7 @@ void printf(char *format, ...){
 	}
 
 	va_end(list);
-    str[ind] = '\0';
+	str[ind] = '\0';
 }
 
 */
