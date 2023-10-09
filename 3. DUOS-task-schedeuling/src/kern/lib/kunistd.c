@@ -36,3 +36,23 @@ void __sys_write(char *str)
     kprintf("To print: ");
     kprintf(str);
 }
+
+
+void __sys_start_task(uint32_t psp){
+    kprintf("Inside Start Task %d\n",psp);
+	__asm volatile ("MOV R0, %0"
+		:
+		:"r" (psp)
+	);
+	__asm volatile ("LDMIA R0!,{R4-R11}");
+	__asm volatile ("MSR PSP, R0");
+	__asm volatile ("ISB 0xf" ::: "memory");
+	__asm volatile ("MOV LR, 0xFFFFFFFD");
+	__asm volatile ("BX LR");
+}
+
+void __sys_getpid(unsigned int *val,uint16_t value)
+{
+	*val = value;
+	return ;
+}

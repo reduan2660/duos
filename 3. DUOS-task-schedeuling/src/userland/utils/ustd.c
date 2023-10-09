@@ -30,10 +30,9 @@
 
 #include <ustd.h>
 #include <stdarg.h>
-
 #include <kstdio.h>
 #include <usart.h>
-
+#include <syscall_def.h>
 static uint8_t __outbuf[50];
 
 void printf(char *format, ...)
@@ -145,4 +144,49 @@ void printf(char *format, ...){
 	str[ind] = '\0';
 }
 
+
+
 */
+
+void yeild(void)
+{
+    __asm volatile("svc 120");
+}
+
+void task_exit(void)
+{
+    __asm volatile("stmdb r13!, {r5}");
+    __asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc 3\n"
+        "nop\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+    yeild();
+}
+
+uint32_t getpid(void)
+{
+    unsigned int pid = 0;
+    __asm volatile("mov r5, %[v]": : [v] "r" (&pid));
+    __asm volatile("stmdb r13!, {r5}");
+    __asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc 5\n"
+        "nop\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+    return (uint16_t) pid;
+}
+
+
+void start_task(uint32_t psp){
+	__asm volatile ("MOV R0, %0"
+		:
+		:"r" (psp)
+	);
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_start));
+	__asm volatile ("POP {r4-r11, ip, lr}");
+
+}

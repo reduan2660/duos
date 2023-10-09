@@ -33,15 +33,30 @@
 /*
 * Task, thread or process header
 */
+#include <stdint.h>
+typedef struct dev_t{
+	char name[32]; // Device name or symbol
+	uint32_t t_ref; //Number of open count
+	uint8_t t_access; //open type O_RDONLY, O_WRDONLY, O_APPEND
+	uint32_t *op_addr; //Address of the datastructure operations
+}dev_table;
 typedef struct task_tcb{
 	uint32_t magic_number; //here it is 0xFECABAA0
 	uint16_t task_id; //a unsigned 16 bit integer starting from 1000 
-	void *psp; //task stack pointer or stackframe address
+	uint32_t *psp; //task stack pointer or stackframe address
 	uint16_t status; //task status: running, waiting, ready, killed, or terminated
 	uint32_t execution_time; //total execution time (in ms)
 	uint32_t waiting_time; //total waiting time (in ms)
 	uint32_t digital_sinature; //current value is 0x00000001
+	void (*runnable)(void); //task function
 } TCB_TypeDef;
+typedef struct ready_queue {
+	int size;
+	int max;
+    int st;
+	int ed;
+	TCB_TypeDef *q[30];
+} ReadyQ_TypeDef;
 
 #endif
 

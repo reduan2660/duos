@@ -32,6 +32,7 @@
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
+extern volatile uint8_t _if_pending = 0;
 /************************************************************************************
  * __SysTick_init(uint32_t reload)
  * Function initialize the SysTick clock. The function with a weak attribute enables
@@ -102,11 +103,20 @@ __attribute__((weak)) uint32_t __getTime(void)
 __attribute__((weak)) void SysTick_Handler()
 {
     __mscount += (SYSTICK->LOAD) / (PLL_N * reload);
-    kprintf("Exception : Systick Exception Triggered - ");
-    kprintf("%d\n", __mscount);
+
+    if (_if_pending)
+    {
+        SCB->ICSR |= (1 << 28); // set PendSV bit
+    }
 }
 
 void __enable_fpu()
 {
     SCB->CPACR |= ((0xF << 20));
+}
+
+void __set_pending(uint8_t if_pending)
+{
+    kprintf("Setting pending to %d\n", if_pending);
+    _if_pending = if_pending;
 }

@@ -30,8 +30,14 @@
  
 #ifndef __UUNISTD_H
 #define __UUNISTD_H
-
+#include <stdint.h>
 // uint8_t * convert(uint32_t x,uint8_t base);
 void printf(char *format, ...);
 
+// Task Stuff
+
+void task_exit(void);
+void yeild(void);
+uint32_t getpid(void);
+void start_task(uint32_t psp);
 #endif

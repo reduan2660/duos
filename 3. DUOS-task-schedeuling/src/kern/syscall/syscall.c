@@ -35,18 +35,24 @@
 
 #include <kunistd.h>
 #include <usart.h>
-
+#include <types.h>
+#include <cm4.h>
+#include <stdint.h>
+#include <schedule.h>
 void syscall(uint32_t *svc_args)
 {
 	int callno = ((char *)svc_args[6])[-2];
 	kprintf("Callno: %d\n", callno);
-
-	uint32_t stacked_r0, stacked_r1, stacked_r2, stacked_r3;
+	uint32_t psp;
+	uint32_t stacked_r0, stacked_r1, stacked_r2, stacked_r3, pid;
 
 	stacked_r0 = svc_args[0];
 	stacked_r1 = svc_args[1];
 	stacked_r2 = svc_args[2];
 	stacked_r3 = svc_args[3];
+	pid = svc_args[10];
+
+	TCB_TypeDef* task;
 
 	switch (callno)
 	{
@@ -59,15 +65,28 @@ void syscall(uint32_t *svc_args)
 	case SYS_reboot:
 		break;
 	case SYS__exit:
+		task = svc_args[16];
+		task->status = KILLED;
+
 		break;
 	case SYS_getpid:
+		// uint32_t pid = svc_args[10];
+		// pid = svc_args[10];
+		task = svc_args[16];
+		__sys_getpid((unsigned int *)pid,task->task_id);
 		break;
 	case SYS___time:
 		break;
 	case SYS_yield:
+		SCB->ICSR |= (1 << 28); // set PendSV bit
+		break;
+	case SYS_start:
+		psp = (uint32_t)svc_args[0];
+		__sys_start_task(psp);
 		break;
 	/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/
-	default:;
+	default:
+		break;
 	}
 	/* Handle SVC return here */
 }

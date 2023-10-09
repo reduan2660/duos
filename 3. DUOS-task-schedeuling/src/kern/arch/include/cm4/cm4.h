@@ -249,4 +249,5 @@ __attribute__((weak)) uint32_t __getTime(void);
 * Functions on FPU
 **/
 void __enable_fpu(void);
+void __set_pending(uint8_t);
 #endif

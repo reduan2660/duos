@@ -32,7 +32,7 @@
 #define __KMAIN_H
 
 
-#define MAX_TASKS   5
+#define MAX_TASKS   20
 
 /* some stack memory calculations */
 #define SIZE_TASK_STACK          1024U
@@ -41,6 +41,13 @@
 #define SRAM_START               0x20000000U
 #define SIZE_SRAM                ( (128) * (1024))
 #define SRAM_END                 ((SRAM_START) + (SIZE_SRAM) )
+
+#define KERNEL_STACK_START       SRAM_END // main stack
+#define KERNEL_STACK_SIZE        ( (4) * (1024) ) // 4KB
+#define KERNEL_STACK_END         ( (KERNEL_STACK_START) - (KERNEL_STACK_SIZE) ) 
+#define TASK_STACK_START         KERNEL_STACK_END
+#define TASK_STACK_SIZE          ( (1) * (1024) ) // 1KB
+
 
 /*#define T1_STACK_START           SRAM_END
 #define T2_STACK_START           ( (SRAM_END) - (1 * SIZE_TASK_STACK) )

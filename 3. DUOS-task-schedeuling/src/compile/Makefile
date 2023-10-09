@@ -12,7 +12,15 @@ MAPDIR = mapfiles
 CFLAGS=-c -mcpu=$(MACH) -mthumb $(FPU) -std=gnu11 -Wall -O0
 LDFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-exceptions  -mcpu=$(MACH) -mthumb $(FPU) -T $(TOP)/arch/$(MCU)/linker/linker.ld -Wl,-Map=$(MAPDIR)/duos.map -O0
 .PHONY: all clear load
-all: kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o se7en_segment.o stm32_startup.o sys_init.o ustd.o times.o kunistd.o ktimes.o syscall.o sys.o test_interrupt.o main.o duos  
+all: schedule.o kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o se7en_segment.o stm32_startup.o sys_init.o ustd.o times.o kunistd.o ktimes.o syscall.o sys.o test_interrupt.o main.o duos
+
+##################################################
+
+schedule.o: $(TOP)/lib/schedule.c
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+
+##################################################
+
 
 kstdio.o: $(TOP)/lib/kstdio.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
@@ -77,7 +85,7 @@ sys.o: $(TOP)/arch/$(MCU)/sys/sys.c
 test_interrupt.o: $(TOP)/lib/testprog/test_interrupt.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
-duos: $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/sys.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/se7en_segment.o $(OBJECT)/sys_init.o $(OBJECT)/ustd.o $(OBJECT)/main.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/test_interrupt.o 
+duos: $(OBJECT)/schedule.o $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/sys.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/se7en_segment.o $(OBJECT)/sys_init.o $(OBJECT)/ustd.o $(OBJECT)/main.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/test_interrupt.o 
 	$(CC) $(LDFLAGS) $^ -o $(TARGET)/$@
 
 clear:

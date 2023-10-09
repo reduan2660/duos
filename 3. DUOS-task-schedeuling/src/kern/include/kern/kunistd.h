@@ -30,6 +30,7 @@
 
 #ifndef __KERN_UNISTD_H
 #define __KERN_UNISTD_H
+#include <kstdio.h>
 /* Constants for read/write/etc: special file handles */
 #define STDIN_FILENO  0      /* Standard input */
 #define STDOUT_FILENO 1      /* Standard output */
@@ -37,4 +38,8 @@
 #endif /* KERN_UNISTD_H */
 
 void __sys_write(char *str);
+
+// Task Stuff
+void __sys_start_task(uint32_t);
+void __sys_getpid(unsigned int *val,uint16_t value);
 

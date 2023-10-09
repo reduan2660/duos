@@ -2,6 +2,6 @@
 
 int main()
 {
-    printf("Hello World!\n");
+    printf("ping : pong\n");
     return 0;
 }

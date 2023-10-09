@@ -35,6 +35,8 @@
     "lib.h": "c",
     "compare": "c",
     "ustd.h": "c",
-    "stm32_startup.h": "c"
+    "stm32_startup.h": "c",
+    "schedule.h": "c",
+    "clock.h": "c"
   }
 }
