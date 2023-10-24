@@ -39,6 +39,7 @@
 #include <sys.h>
 #include <test_interrupt.h>
 #include <stm32_peps.h>
+#include <can.h>
 
 void GPIO_Config(void)
 {
@@ -79,6 +80,31 @@ void Interrupt_Config(void)
 	__NVIC_EnableIRQn(EXTI0_IRQn);	   // Enable Interrupt
 }
 
+/*----------------------------------------------------------------------------
+  initialize CAN interface
+ *----------------------------------------------------------------------------*/
+unsigned int val_Tx = 0, val_Rx = 0; // Global variables used for display
+
+void pseudo_delay(unsigned int nCount)
+{
+	for (; nCount != 0; nCount--)
+		;
+}
+
+void can_Init(void)
+{
+
+	CAN_setup();					   // setup CAN interface
+	CAN_wrFilter(33, STANDARD_FORMAT); // Enable reception of messages
+
+	/* COMMENT THE LINE BELOW TO ENABLE DEVICE TO PARTICIPATE IN CAN NETWORK   */
+	// CAN_testmode(CAN_BTR_SILM | CAN_BTR_LBKM); // Loopback, Silent Mode (self-test)
+
+	CAN_start(); // leave init mode
+
+	CAN_waitReady(); // wait til mbx is empty
+}
+
 void kmain(void)
 {
 	__sys_init();
@@ -87,55 +113,41 @@ void kmain(void)
 	GPIO_Config();
 	Interrupt_Config();
 
-	kprintf("Press 1 to trigger Hardfault\n");
-	kprintf("Press 2 to enable Systick Interrupt\n");
-	kprintf("Press 3 to disable Systick Interrupt\n");
-	kprintf("Press 4 to set BASEPRI\n");
-	kprintf("Press 0 to reboot\n");
+	// CAN
+	can_Init(); // initialise CAN interface
+	pseudo_delay(4500000);
+	kprintf("CAN initialised.\n");
+
+	CAN_TxMsg.id = 33; // initialise message to send
+
+	int i;
+	for (i = 0; i < 8; i++)
+		CAN_TxMsg.data[i] = 0;
+	CAN_TxMsg.len = 1;
+	CAN_TxMsg.format = STANDARD_FORMAT;
+	CAN_TxMsg.type = DATA_FRAME;
 
 	while (1)
-	{
-
-		int option, priority;
-		;
-
-		kprintf("Waiting for input\n");
-		kscanf("%d", &option);
-
-		switch (option)
+	{ // Loop forever
+		if (CAN_TxRdy)
 		{
-		case 1:
-			kprintf("Triggering Hardfault\n");
-			enable_hardfault_event();
-			break;
+			CAN_TxRdy = 0;
 
-		case 2:
-			kprintf("Enabling Systick Interrupt\n");
-			enableSysTickInterrupt();
-			break;
-
-		case 3:
-			kprintf("Disabling Systick Interrupt\n");
-			disableSysTickInterrupt();
-			break;
-
-		case 4:
-			kprintf("Enter priority: "); // 0-15
-			kscanf("%d", &priority);
-
-			kprintf("Setting BASEPRI");
-			__set_BASEPRI(priority);
-
-			kprintf("BASEPRI VALUE: %d\n", get_basepri_value());
-			break;
-
-		case 0:
-			kprintf("Rebooting\n");
-			reboot();
-			break;
-
-		default:
-			break;
+			CAN_TxMsg.data[0] = adc_Get(); // data[0] field = ADC value
+			CAN_wrMsg(&CAN_TxMsg);		   // transmit message
+			val_Tx = CAN_TxMsg.data[0];
 		}
+
+		delay(10000); // Wait a while to receive the message
+
+		if (CAN_RxRdy)
+		{
+			CAN_RxRdy = 0;
+
+			val_Rx = CAN_RxMsg.data[0];
+		}
+
+		// print the values
+		kprintf("Tx: %d, Rx: %d\n", val_Tx, val_Rx);
 	}
 }
