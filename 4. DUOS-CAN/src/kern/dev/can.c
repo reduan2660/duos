@@ -121,9 +121,37 @@ void CAN_wrFilter(unsigned int id, unsigned char format)
 void CAN_start(void)
 {
 
+    /*
+    CAN_MCR
+    Bit 0 INRQ: Initialization request
+    The software clears this bit to switch the hardware into normal mode. Once 11 consecutive
+    recessive bits have been monitored on the Rx signal the CAN hardware is synchronized and
+    ready for transmission and reception. Hardware signals this event by clearing the INAK bit in
+    the CAN_MSR register.
+    Software sets this bit to request the CAN hardware to enter initialization mode. Once
+    software has set the INRQ bit, the CAN hardware waits until the current CAN activity
+    (transmission or reception) is completed before entering the initialization mode. Hardware
+    signals this event by setting the INAK bit in the CAN_MSR register.
+    */
     CAN2->MCR &= ~CAN_MCR_INRQ; // normal operating mode, reset INRQ
-    while (CAN2->MSR & CAN_MCR_INRQ)
+
+
+    /*
+    CAN_MSR
+    Bit 0 INAK: Initialization acknowledge
+    This bit is set by hardware and indicates to the software that the CAN hardware is now in
+    initialization mode. This bit acknowledges the initialization request from the software (set
+    INRQ bit in CAN_MCR register).
+    This bit is cleared by hardware when the CAN hardware has left the initialization mode (to
+    be synchronized on the CAN bus). To be synchronized the hardware has to monitor a
+    sequence of 11 consecutive recessive bits on the CAN RX signal.
+    */
+    // while (CAN2->MSR & CAN_MCR_INRQ){
+    while (CAN2->MSR & CAN_MCR_INRQ){
+        kprintf("%o\n", CAN2->MSR);
+    }
         ; // wait till ready
+    kprintf("Here 2.\n");
 }
 
 /*----------------------------------------------------------------------------

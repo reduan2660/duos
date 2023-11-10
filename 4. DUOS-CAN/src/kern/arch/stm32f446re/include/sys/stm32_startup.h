@@ -31,6 +31,7 @@
 #ifndef __STM32_STARTUP_H
 #define __STM32_STARTUP_H
 #include <stdint.h>
+#include <a9g.h>
 
 #define SRAM_START 0x20000000U
 #define SRAM_SIZE (128*1024) //128KB
@@ -113,7 +114,7 @@ void FMC_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void SDIO_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void TIM5_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void SPI3_Handler(void) __attribute__((weak, alias("Default_Handler")));
-void UART4_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void UART4_Handler(void) __attribute__((weak));
 void UART5_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void TIM6_DAC_Handler(void) __attribute__((weak, alias("Default_Handler")));
 void TIM7_Handler(void) __attribute__((weak, alias("Default_Handler")));

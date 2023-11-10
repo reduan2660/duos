@@ -28,6 +28,10 @@
     "syscall_def.h": "c",
     "kstdio.h": "c",
     "stm32_startup.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "can.h": "c",
+    "a9g.h": "c",
+    "kstring.h": "c",
+    "string.h": "c"
   }
 }

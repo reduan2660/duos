@@ -32,6 +32,7 @@
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
+#define SYS_CLK_SPD 180000000 
 /************************************************************************************
 * __SysTick_init(uint32_t reload) 
 * Function initialize the SysTick clock. The function with a weak attribute enables 
@@ -44,7 +45,8 @@ __attribute__((weak)) void __SysTick_init(uint32_t reload)
 
     SYSTICK->VAL =0; // initialize the counter
     __mscount=0;
-    SYSTICK->LOAD = PLL_N*reload;
+    // SYSTICK->LOAD = PLL_N*reload;
+    SYSTICK->LOAD = SYS_CLK_SPD/1000;
     SYSTICK->CTRL |= 1<<1 | 1<<2; //enable interrupt and internal clock source
     
     // SYSTICK->CTRL|=1<<0; //enable systick counter
@@ -98,6 +100,13 @@ __attribute__((weak)) void SysTick_Handler()
     __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
 	kprintf("Exception : Systick Exception Triggered - ");
 	kprintf("%d\n", __mscount);
+}
+
+uint8_t ms_delay(uint32_t delay)
+{
+	uint32_t cms=__mscount;
+	while((__mscount-cms)<delay);
+	return 1;
 }
 
 void __enable_fpu()

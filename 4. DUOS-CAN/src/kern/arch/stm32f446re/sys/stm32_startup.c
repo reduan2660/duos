@@ -92,6 +92,7 @@ void SVCall_Handler(void)
 
 void EXTI0_Handler(void)
 {
+	kprintf("EXTI0 Interrupt Triggered\n");
 	if (EXTI->PR & (1 << 0)) // If the PA0 triggered the interrupt
 	{
 		EXTI->PR |= (1 << 0); // Clear the interrupt flag by writing a 1
@@ -105,3 +106,5 @@ void EXTI0_Handler(void)
 // 	kprintf("Exception : Systick Exception Triggered - ");
 // 	kprintf("%d\n", __getSysTickCount());
 // }
+
+

@@ -40,6 +40,7 @@
 #include <test_interrupt.h>
 #include <stm32_peps.h>
 #include <can.h>
+#include <a9g.h>
 
 void GPIO_Config(void)
 {
@@ -93,7 +94,6 @@ void pseudo_delay(unsigned int nCount)
 
 void can_Init(void)
 {
-
 	CAN_setup();					   // setup CAN interface
 	CAN_wrFilter(33, STANDARD_FORMAT); // Enable reception of messages
 
@@ -108,46 +108,57 @@ void can_Init(void)
 void kmain(void)
 {
 	__sys_init();
-	__SysTick_init(16777215);
-
+	// __SysTick_init(16777215);
 	GPIO_Config();
-	Interrupt_Config();
+	a9g_init();
 
-	// CAN
-	can_Init(); // initialise CAN interface
-	pseudo_delay(4500000);
-	kprintf("CAN initialised.\n");
+	// // CAN
+	// kprintf("CAN initializing. May take a while.\n");
 
-	CAN_TxMsg.id = 33; // initialise message to send
+	// can_Init(); // initialise CAN interface
+	// // pseudo_delay(4500000);
+	// kprintf("CAN initialised.\n");
 
-	int i;
-	for (i = 0; i < 8; i++)
-		CAN_TxMsg.data[i] = 0;
-	CAN_TxMsg.len = 1;
-	CAN_TxMsg.format = STANDARD_FORMAT;
-	CAN_TxMsg.type = DATA_FRAME;
+	// CAN_TxMsg.id = 33; // initialise message to send
+
+	// int i;
+	// for (i = 0; i < 8; i++)
+	// 	CAN_TxMsg.data[i] = 0;
+	// CAN_TxMsg.len = 1;
+	// CAN_TxMsg.format = STANDARD_FORMAT;
+	// CAN_TxMsg.type = DATA_FRAME;
+
+	// while (1)
+	// { // Loop forever
+	// 	if (CAN_TxRdy)
+	// 	{
+	// 		CAN_TxRdy = 0;
+
+	// 		// CAN_TxMsg.data[0] = adc_Get(); // data[0] field = ADC value
+	// 		CAN_wrMsg(&CAN_TxMsg); // transmit message
+	// 		val_Tx = CAN_TxMsg.data[0];
+	// 	}
+
+	// 	pseudo_delay(1000000); // Wait a while to receive the message
+
+	// 	if (CAN_RxRdy)
+	// 	{
+	// 		CAN_RxRdy = 0;
+
+	// 		val_Rx = CAN_RxMsg.data[0];
+	// 	}
+
+	// 	// print the values
+	// 	kprintf("Tx: %d, Rx: %d\n", val_Tx, val_Rx);
+	// }
 
 	while (1)
-	{ // Loop forever
-		if (CAN_TxRdy)
-		{
-			CAN_TxRdy = 0;
-
-			CAN_TxMsg.data[0] = adc_Get(); // data[0] field = ADC value
-			CAN_wrMsg(&CAN_TxMsg);		   // transmit message
-			val_Tx = CAN_TxMsg.data[0];
-		}
-
-		delay(10000); // Wait a while to receive the message
-
-		if (CAN_RxRdy)
-		{
-			CAN_RxRdy = 0;
-
-			val_Rx = CAN_RxMsg.data[0];
-		}
-
-		// print the values
-		kprintf("Tx: %d, Rx: %d\n", val_Tx, val_Rx);
+	{
+		pseudo_delay(1000);
+		// kprintf("Enter a command: ");
+		// kscanf("%s", atCommand);
+		// kprintf(atCommand);
 	}
+
+	kprintf("Program Ended\n");
 }

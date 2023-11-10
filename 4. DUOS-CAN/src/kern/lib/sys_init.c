@@ -37,12 +37,18 @@
 
 void __sys_init(void)
 {
-	DRV_CLOCK_INIT();		// configure system clock 180 MHz
-	DRV_GPIO_INIT(GPIOA);	// Initialize GPIO
-	DRV_USART_INIT(USART2); // configure as standard input and output
+	DRV_CLOCK_INIT();	  // configure system clock 180 MHz
+	DRV_GPIO_INIT(GPIOA); // Initialize GPIO
+	DRV_USART2_INIT();
+	DRV_USART4_INIT();
 	__enable_irq();
 
-	kprintf("                         \n");
-	kprintf("---System Booting--------\n");
-	kprintf("                         \n");
+	__NVIC_SetPriority(UART4_IRQn, 0);
+	__NVIC_EnableIRQn(UART4_IRQn);
+
+	// __set_BASEPRI(15);
+
+	kprintf("                           \n");
+	kprintf("--- System Booting --------\n");
+	kprintf("                           \n");
 }
