@@ -10,7 +10,7 @@ uint32_t TASK_ID = 1;
 uint32_t task_start_time = 0;
 uint32_t SCHEDEULING_ALGORITHM = ROUND_ROBIN;
 
-semaphore task_semaphore = 1;
+semaphore mutex = 1;
 ReadyQ_TypeDef sem_queue;
 
 void init_queue(void)
@@ -62,7 +62,11 @@ void __schedule(void)
 		if (current_task->status == KILLED)
 		{
 			uint32_t turn_around_time = __getTime() - current_task->start_time_t;
-			current_task->waiting_time = turn_around_time - current_task->execution_time;
+
+			if (current_task->execution_time > turn_around_time)
+				current_task->waiting_time = -turn_around_time + current_task->execution_time;
+			else
+				current_task->waiting_time = turn_around_time - current_task->execution_time;
 
 			// kprintf("time\tstart\texecution\tturnaround\twaiting\n");
 			// kprintf("%d\t%d\t%d\t\t%d\t\t%d\n", __getTime(), current_task->start_time_t, current_task->execution_time, turn_around_time, current_task->waiting_time);
@@ -82,11 +86,18 @@ void __schedule(void)
 	// ------FCFS SCHEDULING ALGORITHM------
 	else if (SCHEDEULING_ALGORITHM == FIRST_COME_FIRST_SERVE)
 	{
-		uint32_t currenctTime = __getTime();
-		current_task->execution_time += currenctTime - current_task->response_time_t;
-		current_task = pop();
-		current_task->response_time_t = currenctTime;
-		current_task->waiting_time += currenctTime - current_task->start_time_t;
+
+		uint32_t currentTime = __getTime();
+		current_task->execution_time += currentTime - current_task->response_time_t;
+
+		if (current_task->status == KILLED)
+		{
+			current_task = pop();
+			current_task->start_time_t = currentTime;
+		}
+		// kprintf("Current task = %d\n\n\n", current_task->task_id);
+		current_task->response_time_t = currentTime;
+		current_task->waiting_time += currentTime - current_task->start_time_t;
 
 		current_task->status = RUNNING;
 		return;
@@ -108,6 +119,7 @@ void __create_task(TCB_TypeDef *tcb, void (*task)(void), uint32_t *stack_start)
 	tcb->priority = 1;
 	tcb->digital_sinature = 0x00000001;
 
+	tcb->psp = stack_start;
 	*(--tcb->psp) = DUMMY_XPSR;		// xPSR
 	*(--tcb->psp) = (uint32_t)task; // PC
 	*(--tcb->psp) = 0xFFFFFFFD;		// LR
@@ -142,7 +154,6 @@ void __start_task(void)
 	current_task->response_time_t = cur_time;
 	task_start_time = cur_time;
 	current_task->status = RUNNING;
-
 	start_task(current_task->psp);
 }
 
@@ -214,8 +225,8 @@ void print_task_info(TCB_TypeDef *task)
 
 void down(void)
 {
-	sem_dec(&task_semaphore);
-	if (task_semaphore < 0)
+	sem_dec(&mutex);
+	if (mutex < 0)
 	{
 		push_sem(current_task);
 		current_task->status = SLEEPING;
@@ -224,8 +235,8 @@ void down(void)
 
 void up(void)
 {
-	sem_inc(&task_semaphore);
-	if (task_semaphore >= 0)
+	sem_inc(&mutex);
+	if (mutex >= 0)
 	{
 		TCB_TypeDef *task = pop_sem();
 		task->status = READY;

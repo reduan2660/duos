@@ -49,6 +49,7 @@
 #include <sem.h>
 
 /* Task Stuff */
+// #define STOP 100000
 #define STOP 100000
 #define TASK_COUNT 10
 TCB_TypeDef __task[MAX_TASKS], __sleep;
@@ -60,23 +61,25 @@ void task(void)
 	uint32_t value;
 	uint32_t inc_count = 0;
 	uint32_t pid = getpid();
-	// kprintf("------Task %d----------\n", pid - 1);
+	kprintf("------Task %d----------\n", pid - 1);
 	while (1)
 	{
 		value = GLOBAL_COUNT;
 		value++;
 		if (value != GLOBAL_COUNT + 1)
-		{ // we check is someother task(s) increase the count
-		  // kprintf("Error in task %d -- %d != %d\n\r", pid, value, GLOBAL_COUNT + 1); /* It is an SVC call*/
+		{																			   // we check is someother task(s) increase the count
+			kprintf("Error in task %d -- %d != %d\n\r", pid, value, GLOBAL_COUNT + 1); /* It is an SVC call*/
 		}
 		else
 		{
+			// kprintf(".");
 			GLOBAL_COUNT = value;
 			inc_count++;
 		}
+
 		if (GLOBAL_COUNT >= STOP)
 		{
-			// kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count);
+			kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count);
 
 			break;
 		}
@@ -147,15 +150,15 @@ void print_stats(void)
 		TCB_TypeDef *task = (TCB_TypeDef *)__task + i;
 
 		kprintf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
-				task->task_id, task->start_time_t, task->response_time_t, task->waiting_time, task->execution_time, task->execution_time + task->execution_time);
+				task->task_id, task->start_time_t * 1, task->response_time_t * 1, task->waiting_time * 1, task->execution_time * 1, task->execution_time * 1 + task->waiting_time * 1);
 
 		if (task->waiting_time < 10000)
 		{
 			task_policy_count++;
-			avg_response_time += task->response_time_t;
-			avg_waiting_time += task->waiting_time;
-			avg_turnaround_time += task->execution_time + task->execution_time;
-			avg_execution_time += task->execution_time;
+			avg_response_time += task->response_time_t * 1;
+			avg_waiting_time += task->waiting_time * 1;
+			avg_turnaround_time += task->execution_time * 1 + task->execution_time * 1;
+			avg_execution_time += task->execution_time * 1;
 		}
 	}
 
@@ -234,7 +237,7 @@ void fcfs_no_semaphore()
 
 void fcfs_semaphore()
 {
-	kprintf("------FCFS - No Semaphore ----------\n");
+	kprintf("------FCFS - Semaphore ----------\n");
 	SCHEDEULING_ALGORITHM = FIRST_COME_FIRST_SERVE;
 	init_queue();
 	for (int i = 0; i < TASK_COUNT; i++)
@@ -262,7 +265,6 @@ void kmain(void)
 
 	// round_robin_no_semaphore();
 	// round_robin_semaphore();
-
 	// fcfs_no_semaphore();
 	fcfs_semaphore();
 

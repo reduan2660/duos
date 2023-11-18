@@ -9,7 +9,7 @@
 
 typedef uint32_t semaphore;
 
-// volatile semaphore task_semaphore = 1;
+// volatile semaphore mutex = 1;
 // volatile ReadyQ_TypeDef sem_queue;
 
 extern void sem_dec(semaphore *semaphore);

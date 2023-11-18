@@ -17,7 +17,7 @@ void sem_dec(semaphore *_semaphore)
         "   BNE     1b                  \n" // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n" // ; Required before accessing protected resource
         "   B      3f                   \n"
-        "2:                             \n" // ; Take appropriate action while waiting for semaphore to be incremented
+        "2:                             \n" 
         "   WAIT_FOR_UPDATE             \n"
         "   B       1b                  \n"
         "3:                             \n"

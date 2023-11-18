@@ -39,7 +39,7 @@
 #define SLEEPING 5
 
 #define MAX_TASK 10
-#define PENDSV_TICK_TIME 1
+#define PENDSV_TICK_TIME 10
 #include <types.h>
 #include <stdint.h>
 #include <cm4.h>
